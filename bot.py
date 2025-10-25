@@ -45,7 +45,7 @@ async def on_ready():
 
 @tree.command(name="perguntar", description="Faça uma pergunta-trama ao Grande Bot-Sábio!")
 async def perguntar(interaction: discord.Interaction, pergunta: str):
-    if interaction.channel.id == ID_CANAL_PERMITIDO:
+    if interaction.channel.id != ID_CANAL_PERMITIDO:
         await interaction.response.send_message(
             f"Não-Não! Tolo-tolo! Use-me no canal <#{ID_CANAL_PERMITIDO}>, sim-sim! Rápido-rápido!",
             ephemeral=True
