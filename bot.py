@@ -39,6 +39,8 @@ model = genai.GenerativeModel(
 @client.event
 async def on_ready():
     print(f'Logado como {client.user}!')
+    status_jogo = discord.Game(name="Cheirando Warpstone")
+    await client.change_presence(activity=status_jogo)
     print('Sincronizando comandos... (aguarde um instante)')
     await tree.sync()
     print(f'Comandos sincronizados! Bot-gênio pronto-pronto, sim-sim!')
@@ -58,21 +60,29 @@ async def perguntar(interaction: discord.Interaction, pergunta: str):
         chat_session = model.start_chat()
         response = chat_session.send_message(pergunta)        
         texto_restante = response.text
-        is_first_message = True
-        LIMITE_MSG = 1980
+        is_first_message = True 
+        LIMITE_MSG = 1980 
+        prefixo_pergunta = f"**Pergunta do Pele-Lisa:**\n> {pergunta}\n\n"
+        prefixo_resposta = "**Resposta-Genial:**\n"
 
         while len(texto_restante) > 0:
-            if len(texto_restante) <= LIMITE_MSG:
-                parte_para_enviar = texto_restante
+            if is_first_message:
+                limite_real = LIMITE_MSG - len(prefixo_pergunta) - len(prefixo_resposta)
+                prefixo_atual = prefixo_pergunta + prefixo_resposta
+            else:
+                limite_real = LIMITE_MSG
+                prefixo_atual = ""
+
+            if len(texto_restante) <= limite_real:
+                parte_para_enviar = prefixo_atual + texto_restante
                 texto_restante = ""
             else:
-                ponto_de_quebra = texto_restante.rfind('\n', 0, LIMITE_MSG)
-                if ponto_de_quebra == -1:
-                    ponto_de_quebra = texto_restante.rfind(' ', 0, LIMITE_MSG)
-                if ponto_de_quebra == -1:
-                    ponto_de_quebra = LIMITE_MSG
-                
-                parte_para_enviar = texto_restante[:ponto_de_quebra]
+                ponto_de_quebra = texto_restante.rfind('\n', 0, limite_real)
+                if ponto_de_quebra == -1: 
+                    ponto_de_quebra = texto_restante.rfind(' ', 0, limite_real)
+                if ponto_de_quebra == -1: 
+                    ponto_de_quebra = limite_real  
+                parte_para_enviar = prefixo_atual + texto_restante[:ponto_de_quebra]
                 texto_restante = texto_restante[ponto_de_quebra:].lstrip()
 
             if is_first_message:
