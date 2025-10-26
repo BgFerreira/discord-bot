@@ -10,6 +10,7 @@ SYSTEM_PROMPT_STRING = os.getenv('SYSTEM_PROMPT')
 
 ids_string = os.getenv('ID_CANAL_PERMITIDO')
 ID_CANAL_PERMITIDO_LISTA = [int(id_str.strip()) for id_str in ids_string.split(',')]
+MESTRE_SUPREMO_ID = int(os.getenv('MESTRE_SUPREMO_ID'))
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -184,6 +185,34 @@ async def perguntar(interaction: discord.Interaction, pergunta: str):
     chat_session = get_or_create_chat_session(interaction.user.id)
     response = chat_session.send_message(pergunta)
     await send_skaven_response(interaction, pergunta, response.text)
+
+@tree.command(name="limpar-memoria", description="[MESTRE] Limpa-apaga meu histórico de chat com o bot.")
+async def limpar_memoria(interaction: discord.Interaction):
+    """
+    [COMANDO DE MESTRE] Limpa o histórico de chat do usuário que executou o comando.
+    Verifica se o usuário é o 'Mestre Supremo' definido no .env.
+    """
+
+    if interaction.user.id != MESTRE_SUPREMO_ID:
+        await interaction.response.send_message(
+            "Tolo-tolo! Você-você não é o Mestre-Supremo! Não-não pode-tocar minha mente-memória!",
+            ephemeral=True
+        )
+        return
+
+    user_id = interaction.user.id
+    
+    if user_id in user_chats:
+        del user_chats[user_id]
+        await interaction.response.send_message(
+            "Sim-sim, Mestre! Minhas memórias-lembranças de nossa última trama-conversa foram... *esquecidas*. Estou-pronto para um novo-plano!",
+            ephemeral=True
+        )
+    else:
+        await interaction.response.send_message(
+            "Mestre, nós-nós nem-nem começamos uma trama-conversa ainda! Minha mente-memória já está-limpa!",
+            ephemeral=True
+        )
 
 print("Iniciando o bot-gênio...")
 client.run(DISCORD_TOKEN)
