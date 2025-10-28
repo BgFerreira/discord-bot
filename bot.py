@@ -6,11 +6,21 @@ from dotenv import load_dotenv
 load_dotenv()
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
-SYSTEM_PROMPT_STRING = os.getenv('SYSTEM_PROMPT')
 
 ids_string = os.getenv('ID_CANAL_PERMITIDO')
 ID_CANAL_PERMITIDO_LISTA = [int(id_str.strip()) for id_str in ids_string.split(',')]
 MESTRE_SUPREMO_ID = int(os.getenv('MESTRE_SUPREMO_ID'))
+PROMPT_FILE_PATH = 'config/prompt.md'
+
+try:
+    with open(PROMPT_FILE_PATH, 'r', encoding='utf-8') as f:
+        SYSTEM_PROMPT_STRING = f.read()
+except FileNotFoundError:
+    print(f"ERRO CRÍTICO: Arquivo de prompt '{PROMPT_FILE_PATH}' não encontrado!")
+    SYSTEM_PROMPT_STRING = "Erro: Prompt não carregado."
+except Exception as e:
+    print(f"ERRO CRÍTICO ao carregar prompt do arquivo: {e}")
+    SYSTEM_PROMPT_STRING = "Erro: Prompt inválido."
 
 intents = discord.Intents.default()
 intents.message_content = True

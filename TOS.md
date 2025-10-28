@@ -38,14 +38,10 @@ consequenciais (incluindo perda de lucros, dados ou reputação) decorrentes do 
 (ou da incapacidade de usar) o Bot. 
 5. Propriedade Intelectual e Licenciamento 
 5.1. Propriedade do Desenvolvedor e Licenciamento: 
-● O código-fonte do Bot é de autoria de Bruno Fernandes Dev e está licenciado sob a 
+● O código-fonte do Bot e o trabalho de engenharia do prompt (a lógica de texto para 
+a persona "Skaven") é de autoria de Bruno Fernandes Dev e está licenciado sob a 
 Licença MIT, permitindo o uso, modificação e distribuição por terceiros, conforme 
-estabelecido nos termos da licença. 
-● O trabalho de engenharia do prompt (a lógica de texto para a persona "Skaven") é 
-de autoria de Bruno Fernandes Dev e constitui propriedade intelectual interna e 
-não publicada do desenvolvedor, não estando abrangido pela Licença MIT. A 
-permissão para usar o serviço (o Bot) não implica o direito de acesso ou uso deste 
-prompt. 
+estabelecido nos termos da licença.
 5.2. Propriedade de Terceiros, Uso Não Comercial e Compromisso de Remoção 
 (Notice and Takedown):  
 O Bot faz referência ao universo de Warhammer e usa a persona "Skaven", cujos 
