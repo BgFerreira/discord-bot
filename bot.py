@@ -1,3 +1,4 @@
+import sqlite3
 import discord
 import google.generativeai as genai
 import os
@@ -61,7 +62,7 @@ def get_or_create_chat_session(user_id):
     
     return user_chats[user_id]
 
-async def send_skaven_response(target, pergunta, response_text):
+async def send_response(target, pergunta, response_text):
     """
     Processa e envia a resposta do Gemini de forma paginada.
     'target' pode ser 'interaction' (para /perguntar) ou 'message' (para @menção).
@@ -129,7 +130,7 @@ async def on_ready():
     await client.change_presence(activity=status_jogo)
     print('Sincronizando comandos... (aguarde um instante)')
     await tree.sync()
-    print(f'Comandos sincronizados! Bot-gênio pronto-pronto, sim-sim!')
+    print('Comandos sincronizados! Bot-gênio pronto-pronto, sim-sim!')
 
 @client.event
 async def on_message(message):
@@ -171,12 +172,12 @@ async def on_message(message):
                 chat_session = get_or_create_chat_session(message.author.id)
                 response = chat_session.send_message(prompt_para_gemini)
 
-                await send_skaven_response(message, pergunta_limpa, response.text)
-            
+                await send_response(message, pergunta_limpa, response.text)
+
             except Exception as e:
                 print(f"ERRO-FALHA na resposta por menção: {e}")
                 await message.channel.send("Não-não! Meu cérebro-motor falhou-fritou ao tentar-tentar responder sua menção! A trama-plano falhou!")  
-        return
+        
                 
 
 @tree.command(name="perguntar", description="Faça uma pergunta-trama ao Grande Bot-Sábio!")
@@ -194,7 +195,7 @@ async def perguntar(interaction: discord.Interaction, pergunta: str):
 
     chat_session = get_or_create_chat_session(interaction.user.id)
     response = chat_session.send_message(pergunta)
-    await send_skaven_response(interaction, pergunta, response.text)
+    await send_response(interaction, pergunta, response.text)
 
 @tree.command(name="limpar-memoria", description="[MESTRE] Limpa-apaga meu histórico de chat com o bot.")
 async def limpar_memoria(interaction: discord.Interaction):
