@@ -11,7 +11,11 @@ GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 ids_string = os.getenv('ID_CANAL_PERMITIDO')
 ID_CANAL_PERMITIDO_LISTA = [int(id_str.strip()) for id_str in ids_string.split(',')]
 MESTRE_SUPREMO_ID = int(os.getenv('MESTRE_SUPREMO_ID'))
-PROMPT_FILE_PATH = 'config/prompt.md'
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CONFIG_DIR = os.path.join(BASE_DIR, 'config')
+PROMPT_FILE_PATH = os.path.join(CONFIG_DIR, 'prompt.md')
+BOT_CONFIG_PATH = os.path.join(CONFIG_DIR, 'bot_config.json')
 
 try:
     with open(PROMPT_FILE_PATH, 'r', encoding='utf-8') as f:
