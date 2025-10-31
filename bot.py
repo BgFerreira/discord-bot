@@ -1,4 +1,3 @@
-#TESTE
 import sqlite3
 import discord
 import google.generativeai as genai
