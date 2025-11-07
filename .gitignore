@@ -209,3 +209,6 @@ __marimo__/
 # Banco de dados local
 /data/
 *.sqlite3
+
+# Arquivo de Configuração
+src/bot/config/bot_config.json
