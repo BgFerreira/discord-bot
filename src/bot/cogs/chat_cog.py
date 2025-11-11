@@ -123,48 +123,45 @@ class ChatCog(commands.Cog):
                     print(f"ERROR: Failed to response by mention --> {e}")
                     await message.channel.send("Não-não! Meu cérebro-motor falhou-fritou ao tentar-tentar responder sua menção!")  
 
-@app_commands.command(name="perguntar", description="Faça uma pergunta-trama ao Grande Bot-Sábio!")
-async def ask(self, interaction: discord.Interaction, ask: str):
-    """
-    O comando de barra (para testes e insígnia).
-    """
-    if interaction.channel.id not in self.config['ALLOWED_CHANNELS_ID_LIST']:
-        await interaction.response.send_message(
-            "Não-não! Tolo-tolo! Use-me apenas-só nos meus canais-covis designados!",
-            ephemeral=True
-        )
-        return
-    
-    await interaction.response.defer()
-    chat_session = self._get_or_create_chat_session(interaction.user.id)
-    response = chat_session.send_message(ask)
-    await self.send_response(interaction, ask, response.text)
+    @app_commands.command(name="perguntar", description="Faça uma pergunta-trama ao Grande Bot-Sábio!")
+    async def ask(self, interaction: discord.Interaction, ask: str):
+        """
+        O comando de barra (para testes e insígnia).
+        """
+        if interaction.channel.id not in self.config['ALLOWED_CHANNELS_ID_LIST']:
+            await interaction.response.send_message(
+                "Não-não! Tolo-tolo! Use-me apenas-só nos meus canais-covis designados!",
+                ephemeral=True
+            )
+            return
+
+        await interaction.response.defer()
+        chat_session = self._get_or_create_chat_session(interaction.user.id)
+        response = chat_session.send_message(ask)
+        await self.send_response(interaction, ask, response.text)
 
 
-@app_commands.command(name="limpar-memoria", description="Limpa-apaga minhas memórias-lembranças sobre nossos planos-tramas.")
-async def clean_memory(self, interaction: discord.Interaction):
-    """
-    Limpa o histórico de chat do usuário que executou o comando.
-    """
-    if interaction.user.id != self.config['BOT_MASTER_ID']:
-        await interaction.response.send_message(
-            "Tolo-tolo! Você-você não é o meu mestre! Não-não pode-tocar minha mente-memória!",
-            ephemeral=True
-        )
-        return
+    @app_commands.command(name="limpar-memoria", description="Limpa-apaga minhas memórias-lembranças sobre nossos planos-tramas.")
+    async def clean_memory(self, interaction: discord.Interaction):
+        """
+        Limpa o histórico de chat do usuário que executou o comando.
+        """
+        if interaction.user.id != self.config['BOT_MASTER_ID']:
+            await interaction.response.send_message(
+                "Tolo-tolo! Você-você não é o meu mestre! Não-não pode-tocar minha mente-memória!",
+                ephemeral=True
+            )
+            return
 
-    user_id = interaction.user.id
-    if user_id in self.user_chats:
-        del self.user_chats[user_id]
-        await interaction.response.send_message(
-            "Sim-sim, Mestre! Minhas memórias-lembranças de nossa última trama-conversa foram... *esquecidas*. Estou-pronto para um novo-plano!",
-            ephemeral=True
-        )
-    else:
-        await interaction.response.send_message(
-            "Mestre, nós-nós nem-nem começamos uma trama-conversa ainda! Minha mente-memória já está-limpa!",
-            ephemeral=True
-        )
-
-async def setup(bot: commands.Bot, model: genai.GenerativeModel, config: dict):
-    await bot.add_cog(ChatCog(bot, model, config))
+        user_id = interaction.user.id
+        if user_id in self.user_chats:
+            del self.user_chats[user_id]
+            await interaction.response.send_message(
+                "Sim-sim, Mestre! Minhas memórias-lembranças de nossa última trama-conversa foram... *esquecidas*. Estou-pronto para um novo-plano!",
+                ephemeral=True
+            )
+        else:
+            await interaction.response.send_message(
+                "Mestre, nós-nós nem-nem começamos uma trama-conversa ainda! Minha mente-memória já está-limpa!",
+                ephemeral=True
+            )

@@ -6,6 +6,8 @@ import asyncio
 from dotenv import load_dotenv
 from discord.ext import commands
 
+from src.bot.cogs.chat_cog import ChatCog
+
 load_dotenv()
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
@@ -34,10 +36,10 @@ except Exception as e:
 genai.configure(api_key=GEMINI_API_KEY)
 
 generation_config = {
-  "temperature": 1,
-  "top_p": 0.95,
-  "top_k": 64,
-  "max_output_tokens": 8192,
+    "temperature": 1,
+    "top_p": 0.95,
+    "top_k": 64,
+    "max_output_tokens": 8192,
 }
 safety_settings = [
     {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_ONLY_HIGH"},
@@ -81,7 +83,7 @@ async def on_ready():
     Executa quando o bot se conecta com sucesso ao Discord.
     Define o status de "Jogando" e sincroniza os comandos de barra.
     """
-    print(f'Logged as {bot.user}!')
+    print(f'SYSTEM: Logged as {bot.user}!')
     status_jogo = discord.Game(name="VERMINTIDE 2")
     await bot.change_presence(activity=status_jogo)
     await bot.tree.sync()
@@ -89,7 +91,11 @@ async def on_ready():
 
 async def main():
     async with bot:
-        await load_cogs()
+        try:
+            await bot.add_cog(ChatCog(bot, model=model, config=CONFIG))
+            print("SYSTEM: 'ChatCog' loaded!")
+        except Exception as e:
+            print(f"ERROR: Failed to load 'ChatCog' --> {e}")
         await bot.start(DISCORD_TOKEN)
 
 if __name__ == "__main__":
