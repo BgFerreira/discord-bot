@@ -211,4 +211,4 @@ __marimo__/
 *.sqlite3
 
 # Arquivo de Configuração
-# src/bot/config/bot_config.json
+src/bot/config/bot_config.json
