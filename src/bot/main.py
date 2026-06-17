@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from discord.ext import commands
 
 from src.bot.cogs.chat_cog import ChatCog
+from src.bot.database_manager import DatabaseManager
 
 load_dotenv()
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
@@ -16,6 +17,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_DIR = os.path.join(BASE_DIR, 'config')
 PROMPT_FILE_PATH = os.path.join(CONFIG_DIR, 'prompt.md')
 BOT_CONFIG_PATH = os.path.join(CONFIG_DIR, 'bot_config.json')
+DB_PATH = os.path.join(BASE_DIR, '..', '..', 'data', 'bot_database.db')
 
 try:
     with open(PROMPT_FILE_PATH, 'r', encoding='utf-8') as f:
@@ -36,16 +38,16 @@ except Exception as e:
 genai.configure(api_key=GEMINI_API_KEY)
 
 generation_config = {
-    "temperature": 1,
+    "temperature": 0.7,
     "top_p": 0.95,
     "top_k": 64,
     "max_output_tokens": 8192,
 }
 safety_settings = [
-    {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_ONLY_HIGH"},
-    {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_ONLY_HIGH"},
+    {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+    {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
     {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
-    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_ONLY_HIGH"}
+    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"}
 ]
 model = genai.GenerativeModel(
     model_name="gemini-2.5-flash-lite",
@@ -54,6 +56,10 @@ model = genai.GenerativeModel(
     system_instruction=SYSTEM_PROMPT_STRING
 )
 print("SYSTEM: GenAI loaded!")
+
+db_manager = DatabaseManager(DB_PATH)
+db_manager.init_db()
+print("SYSTEM: Database Manager loaded!")
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -84,15 +90,15 @@ async def on_ready():
     Define o status de "Jogando" e sincroniza os comandos de barra.
     """
     print(f'SYSTEM: Logged as {bot.user}!')
-    status_jogo = discord.Game(name="VERMINTIDE 2")
-    await bot.change_presence(activity=status_jogo)
+    custom_status = discord.CustomActivity(name="Programando em Web")
+    await bot.change_presence(activity=custom_status)
     await bot.tree.sync()
     print('SYSTEM: Bot ready!')
 
 async def main():
     async with bot:
         try:
-            await bot.add_cog(ChatCog(bot, model=model, config=CONFIG))
+            await bot.add_cog(ChatCog(bot, model=model, config=CONFIG, db_manager=db_manager))
             print("SYSTEM: 'ChatCog' loaded!")
         except Exception as e:
             print(f"ERROR: Failed to load 'ChatCog' --> {e}")

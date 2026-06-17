@@ -2,12 +2,17 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 import google.generativeai as genai
+from src.bot.database_manager import DatabaseManager
 
 class ChatCog(commands.Cog):
-    def __init__(self, bot: commands.Bot, model: genai.GenerativeModel, config: dict):
+    """
+    Contém os comandos e funções relacionados ao chatting
+    """
+    def __init__(self, bot: commands.Bot, model: genai.GenerativeModel, config: dict, db_manager: DatabaseManager):
         self.bot = bot
         self.model = model
         self.config = config
+        self.db_manager = db_manager
         self.user_chats = {} #remover com a adição do banco
     
     def _get_or_create_chat_session(self, user_id):
@@ -65,8 +70,8 @@ class ChatCog(commands.Cog):
         """
         is_first_message = True
         if isinstance(target, discord.Interaction):
-            ask_prefix = f"**Pergunta do Coisa-Humana:**\n> {ask}\n\n"
-            response_prefix = "**Minha resposta:**\n"
+            ask_prefix = f"**Pergunta:**\n> {ask}\n\n"
+            response_prefix = "**Resposta:**\n"
         else:
             ask_prefix = ""
             response_prefix = ""
@@ -77,7 +82,7 @@ class ChatCog(commands.Cog):
                 is_first_message = False
         except Exception as e:
             print(f"ERROR: Failed to send message --> {e}")
-            error_message = "Não-não! Meu cérebro-motor falhou-fritou! Tente-tente de novo, rápido-rápido... talvez-seja um plano-trama de outros ratos!"
+            error_message = "Ocorreu um erro interno. Por favor, tente novamente mais tarde."
 
             await self._send_message_part(target, error_message, is_first=is_first_message)
 
@@ -106,13 +111,13 @@ class ChatCog(commands.Cog):
                             original_message = await message.channel.fetch_message(message.reference.message_id)
                             if original_message.content:
                                 prompt_to_genai = f"""
-                                O coisa-homem está apontando para esta outra mensagem de alguém sim-sim:
+                                O usuário está apontando para esta outra mensagem:
                                 '{original_message.content}'
 
-                                E ele me pergunta-diz:
+                                E pergunta:
                                 '{clean_ask}'
 
-                                Responda-diga ao coisa-homem tolo-tolo, levando o contexto em conta! Sim-sim!
+                                Responda ao usuário, levando o contexto em conta!
                                 """
                         except Exception as e:
                             print(f"ERROR: Failed to search reference message --> {e}")
@@ -121,16 +126,16 @@ class ChatCog(commands.Cog):
                     await self.send_response(message, clean_ask, response.text)
                 except Exception as e:
                     print(f"ERROR: Failed to response by mention --> {e}")
-                    await message.channel.send("Não-não! Meu cérebro-motor falhou-fritou ao tentar-tentar responder sua menção!")  
+                    await message.channel.send("Ocorreu um erro ao tentar responder sua menção!")  
 
-    @app_commands.command(name="perguntar", description="Faça uma pergunta-trama ao Grande Bot-Sábio!")
+    @app_commands.command(name="perguntar", description="Faça uma pergunta ao expert em programação web!")
     async def ask(self, interaction: discord.Interaction, ask: str):
         """
         O comando de barra (para testes e insígnia).
         """
         if interaction.channel.id not in self.config['ALLOWED_CHANNELS_ID_LIST']:
             await interaction.response.send_message(
-                "Não-não! Tolo-tolo! Use-me apenas-só nos meus canais-covis designados!",
+                "Por favor, utilize este comando apenas nos canais designados para o bot.",
                 ephemeral=True
             )
             return
@@ -141,14 +146,14 @@ class ChatCog(commands.Cog):
         await self.send_response(interaction, ask, response.text)
 
 
-    @app_commands.command(name="limpar-memoria", description="Limpa-apaga minhas memórias-lembranças sobre nossos planos-tramas.")
+    @app_commands.command(name="limpar-memoria", description="Limpa o histórico da nossa conversa atual.")
     async def clean_memory(self, interaction: discord.Interaction):
         """
         Limpa o histórico de chat do usuário que executou o comando.
         """
         if interaction.user.id != self.config['BOT_MASTER_ID']:
             await interaction.response.send_message(
-                "Tolo-tolo! Você-você não é o meu mestre! Não-não pode-tocar minha mente-memória!",
+                "Você não tem permissão para usar este comando.",
                 ephemeral=True
             )
             return
@@ -157,11 +162,11 @@ class ChatCog(commands.Cog):
         if user_id in self.user_chats:
             del self.user_chats[user_id]
             await interaction.response.send_message(
-                "Sim-sim, Mestre! Minhas memórias-lembranças de nossa última trama-conversa foram... *esquecidas*. Estou-pronto para um novo-plano!",
+                "Histórico de conversa apagado com sucesso. Pronto para ajudar em novos projetos!",
                 ephemeral=True
             )
         else:
             await interaction.response.send_message(
-                "Mestre, nós-nós nem-nem começamos uma trama-conversa ainda! Minha mente-memória já está-limpa!",
+                "Nós ainda não iniciamos uma conversa. Meu histórico já está limpo!",
                 ephemeral=True
             )
